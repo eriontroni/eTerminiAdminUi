@@ -1,20 +1,15 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Building2, Users, Settings, LogOut, ShieldCheck, MapPin } from 'lucide-react'
+import { LogOut, ShieldCheck, KeyRound } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-
-const navItems = [
-  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/tenants',      icon: MapPin,           label: 'Qytetet' },
-  { to: '/institutions', icon: Building2,        label: 'Institucionet' },
-  { to: '/workers',      icon: Users,            label: 'Punëtorët' },
-  { to: '/system',       icon: Settings,         label: 'Sistemi' },
-]
+import { NAV_ITEMS } from '../../lib/navItems'
 
 export default function Sidebar() {
-  const { user, logout } = useAuth()
+  const { user, logout, hasPermission } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = () => { logout(); navigate('/login') }
+
+  const navItems = NAV_ITEMS.filter(item => hasPermission(item.permission))
 
   const initials = user?.fullName
     ?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() ?? 'SA'
@@ -35,18 +30,22 @@ export default function Sidebar() {
       </div>
 
       {/* SuperAdmin badge */}
-      <div className="px-4 py-3 mx-3 mt-4 mb-2 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-2.5">
+      <button
+        onClick={() => navigate('/profile')}
+        className="px-4 py-3 mx-3 mt-4 mb-2 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 flex items-center gap-2.5 transition-all text-left w-[calc(100%-24px)] group"
+      >
         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
           {initials}
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-white text-sm font-semibold truncate">{user?.fullName}</p>
           <div className="flex items-center gap-1 mt-0.5">
             <ShieldCheck className="w-3 h-3 text-emerald-400" />
-            <span className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wide">SuperAdmin</span>
+            <span className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wide truncate">{user?.roleName ?? user?.role}</span>
           </div>
         </div>
-      </div>
+        <KeyRound className="w-3.5 h-3.5 text-white/30 group-hover:text-white/60 shrink-0 transition-colors" />
+      </button>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { loginAdmin } from '../api/authApi'
+import { loginAdmin, refreshAdminSession } from '../api/authApi'
 
 const AuthContext = createContext(null)
 
@@ -18,15 +18,27 @@ export function AuthProvider({ children }) {
   const login = async (credentials) => {
     const { data } = await loginAdmin(credentials)
 
-    if (data.role !== 'SuperAdmin') {
-      throw new Error('Qasja e refuzuar. Vetëm SuperAdmin mund të hyjë.')
+    // Çdo admin (SuperAdmin ose me rol) me leje lejohet të hyjë.
+    const isSuperAdmin = data.role === 'SuperAdmin'
+    if (!isSuperAdmin && (!data.permissions || data.permissions.length === 0)) {
+      throw new Error('Qasja e refuzuar. Nuk keni leje administrative.')
+    }
+
+    const sessionUser = {
+      email:       data.email,
+      fullName:    data.fullName,
+      role:        data.role,
+      roleName:    data.roleName ?? data.role,
+      isSuperAdmin,
+      permissions: data.permissions ?? [],
+      adminRoleId: data.adminRoleId ?? null,
     }
 
     localStorage.setItem('adminAccessToken',  data.accessToken)
     localStorage.setItem('adminRefreshToken', data.refreshToken)
-    localStorage.setItem('adminUser',         JSON.stringify(data))
-    setUser(data)
-    return data
+    localStorage.setItem('adminUser',         JSON.stringify(sessionUser))
+    setUser(sessionUser)
+    return sessionUser
   }
 
   const logout = () => {
@@ -36,8 +48,38 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  const refreshSession = async () => {
+    const storedRefreshToken = localStorage.getItem('adminRefreshToken')
+    if (!storedRefreshToken) return
+
+    const { data } = await refreshAdminSession(storedRefreshToken)
+    const isSuperAdmin = data.role === 'SuperAdmin'
+
+    const sessionUser = {
+      email:       data.email,
+      fullName:    data.fullName,
+      role:        data.role,
+      roleName:    data.roleName ?? data.role,
+      isSuperAdmin,
+      permissions: data.permissions ?? [],
+      adminRoleId: data.adminRoleId ?? null,
+    }
+
+    localStorage.setItem('adminAccessToken',  data.accessToken)
+    localStorage.setItem('adminRefreshToken', data.refreshToken)
+    localStorage.setItem('adminUser',         JSON.stringify(sessionUser))
+    setUser(sessionUser)
+  }
+
+  const hasPermission = (code) => {
+    if (!user) return false
+    if (user.isSuperAdmin) return true
+    if (!code) return true
+    return user.permissions?.includes(code) ?? false
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, hasPermission, refreshSession }}>
       {children}
     </AuthContext.Provider>
   )
