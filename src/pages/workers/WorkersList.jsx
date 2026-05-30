@@ -1,19 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, Pencil, Power } from 'lucide-react'
+import { Plus, Search, Pencil, Power, Trash2 } from 'lucide-react'
 import DataTable     from '../../components/ui/DataTable'
 import StatusBadge   from '../../components/ui/StatusBadge'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import { useWorkers } from '../../hooks/useWorkers'
 import { useToast }   from '../../components/ui/Toast'
+import { useAuth }    from '../../context/AuthContext'
+import { PERMISSIONS } from '../../lib/permissions'
 
 export default function WorkersList() {
-  const { workers, loading, error, toggle } = useWorkers()
-  const [search, setSearch]   = useState('')
-  const [confirm, setConfirm] = useState(null)
-  const [toggling, setToggling] = useState(false)
-  const navigate    = useNavigate()
-  const { addToast } = useToast()
+  const { workers, loading, error, toggle, remove } = useWorkers()
+  const [search, setSearch]       = useState('')
+  const [confirm, setConfirm]     = useState(null)
+  const [toggling, setToggling]   = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const [deleting, setDeleting]   = useState(false)
+  const navigate          = useNavigate()
+  const { addToast }      = useToast()
+  const { hasPermission } = useAuth()
 
   const filtered = workers.filter(w =>
     w.fullName.toLowerCase().includes(search.toLowerCase()) ||
@@ -34,6 +39,19 @@ export default function WorkersList() {
     }
   }
 
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      await remove(confirmDelete.id)
+      addToast('Punëtori u fshi me sukses.')
+    } catch (err) {
+      addToast(err.response?.data?.message ?? err.message, 'error')
+    } finally {
+      setDeleting(false)
+      setConfirmDelete(null)
+    }
+  }
+
   const columns = [
     { key: 'fullName',       label: 'Emri',         render: r => <span className="font-semibold text-slate-900">{r.fullName}</span> },
     { key: 'email',          label: 'Email',         render: r => <span className="text-slate-500 text-xs">{r.email}</span> },
@@ -51,6 +69,11 @@ export default function WorkersList() {
           <button onClick={() => setConfirm(r)} className={`p-2 rounded-lg transition-colors ${r.isActive ? 'text-slate-400 hover:text-red-500 hover:bg-red-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`} title={r.isActive ? 'Çaktivizo' : 'Aktivizo'}>
             <Power className="w-4 h-4" />
           </button>
+          {hasPermission(PERMISSIONS.workers.delete) && (
+            <button onClick={() => setConfirmDelete(r)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Fshi">
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       )
     },
@@ -91,6 +114,16 @@ export default function WorkersList() {
           onConfirm={handleToggle}
           onCancel={() => setConfirm(null)}
           loading={toggling}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Fshi Punëtorin"
+          message={`A jeni i sigurt që dëshironi të fshini punëtorin "${confirmDelete.fullName}"? Ky veprim është i pakthyeshëm.`}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(null)}
+          loading={deleting}
         />
       )}
     </div>

@@ -13,6 +13,16 @@ export const PERMISSIONS = {
     createUpdate: 'institutions.create_update',
     delete: 'institutions.delete',
   },
+  departments: {
+    view: 'departments.view',
+    createUpdate: 'departments.create_update',
+    delete: 'departments.delete',
+  },
+  categories: {
+    view: 'categories.view',
+    createUpdate: 'categories.create_update',
+    delete: 'categories.delete',
+  },
   workers: {
     view: 'workers.view',
     createUpdate: 'workers.create_update',
@@ -49,6 +59,24 @@ export const PERMISSION_CATALOG = [
       { code: 'institutions.view', label: 'Shiko institucionet' },
       { code: 'institutions.create_update', label: 'Krijo/Përditëso' },
       { code: 'institutions.delete', label: 'Fshi' },
+    ],
+  },
+  {
+    key: 'departments',
+    label: 'Departamentet',
+    actions: [
+      { code: 'departments.view', label: 'Shiko departamentet' },
+      { code: 'departments.create_update', label: 'Krijo/Përditëso' },
+      { code: 'departments.delete', label: 'Fshi' },
+    ],
+  },
+  {
+    key: 'categories',
+    label: 'Kategoritë',
+    actions: [
+      { code: 'categories.view', label: 'Shiko kategoritë' },
+      { code: 'categories.create_update', label: 'Krijo/Përditëso' },
+      { code: 'categories.delete', label: 'Fshi' },
     ],
   },
   {

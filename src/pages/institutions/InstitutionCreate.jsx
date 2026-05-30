@@ -4,8 +4,9 @@ import { ArrowLeft, Save } from 'lucide-react'
 import { createInstitution } from '../../api/institutionsApi'
 import { useTenants } from '../../hooks/useTenants'
 import { useToast } from '../../components/ui/Toast'
+import CategorySelect from '../../components/ui/CategorySelect'
 
-const emptyForm = { tenantId: '', name: '', description: '', city: '', address: '', phoneNumber: '', email: '' }
+const emptyForm = { tenantId: '', categoryId: '', name: '', description: '', city: '', address: '', phoneNumber: '', email: '' }
 
 export default function InstitutionCreate() {
   const [form, setForm]       = useState(emptyForm)
@@ -72,6 +73,12 @@ export default function InstitutionCreate() {
             ))}
           </select>
         </div>
+
+        <CategorySelect
+          value={form.categoryId}
+          onChange={set('categoryId')}
+          required
+        />
 
         <Field label="Emri *" value={form.name} onChange={set('name')} required placeholder="Klinika Universitare" />
         <Field label="Përshkrimi" value={form.description} onChange={set('description')} placeholder="Përshkrim i shkurtër" />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getWorkers, createWorker, updateWorker, toggleWorker, assignInstitution } from '../api/workersApi'
+import { getWorkers, createWorker, updateWorker, toggleWorker, assignInstitution, deleteWorker } from '../api/workersApi'
 
 export function useWorkers() {
   const [workers, setWorkers] = useState([])
@@ -45,5 +45,10 @@ export function useWorkers() {
     return res.data
   }
 
-  return { workers, loading, error, fetch, create, update, toggle, assign }
+  const remove = async (id) => {
+    await deleteWorker(id)
+    setWorkers(prev => prev.filter(w => w.id !== id))
+  }
+
+  return { workers, loading, error, fetch, create, update, toggle, assign, remove }
 }

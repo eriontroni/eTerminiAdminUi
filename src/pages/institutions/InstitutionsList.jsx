@@ -1,19 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, Pencil, Power } from 'lucide-react'
+import { Plus, Search, Pencil, Power, Layers, Trash2 } from 'lucide-react'
 import DataTable     from '../../components/ui/DataTable'
 import StatusBadge   from '../../components/ui/StatusBadge'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import { useInstitutions } from '../../hooks/useInstitutions'
 import { useToast } from '../../components/ui/Toast'
+import { useAuth } from '../../context/AuthContext'
+import { PERMISSIONS } from '../../lib/permissions'
 
 export default function InstitutionsList() {
-  const { institutions, loading, error, toggle } = useInstitutions()
+  const { institutions, loading, error, toggle, remove } = useInstitutions()
   const [search, setSearch]       = useState('')
   const [confirm, setConfirm]     = useState(null)
   const [toggling, setToggling]   = useState(false)
-  const navigate = useNavigate()
-  const { addToast } = useToast()
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const [deleting, setDeleting]   = useState(false)
+  const navigate         = useNavigate()
+  const { addToast }     = useToast()
+  const { hasPermission } = useAuth()
 
   const filtered = institutions.filter(i =>
     i.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -33,6 +38,19 @@ export default function InstitutionsList() {
     }
   }
 
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      await remove(confirmDelete.id)
+      addToast('Institucioni u fshi me sukses.')
+    } catch (err) {
+      addToast(err.response?.data?.message ?? err.message, 'error')
+    } finally {
+      setDeleting(false)
+      setConfirmDelete(null)
+    }
+  }
+
   const columns = [
     { key: 'name',       label: 'Emri',         render: r => <span className="font-semibold text-slate-900">{r.name}</span> },
     { key: 'city',       label: 'Qyteti' },
@@ -43,6 +61,15 @@ export default function InstitutionsList() {
       key: 'actions', label: '',
       render: r => (
         <div className="flex items-center gap-2 justify-end">
+          {hasPermission(PERMISSIONS.departments.view) && (
+            <button
+              onClick={() => navigate(`/institutions/${r.id}/departments`)}
+              className="p-2 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+              title="Modifiko departamentet"
+            >
+              <Layers className="w-4 h-4" />
+            </button>
+          )}
           <button
             onClick={() => navigate(`/institutions/${r.id}/edit`)}
             className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
@@ -57,6 +84,15 @@ export default function InstitutionsList() {
           >
             <Power className="w-4 h-4" />
           </button>
+          {hasPermission(PERMISSIONS.institutions.delete) && (
+            <button
+              onClick={() => setConfirmDelete(r)}
+              className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              title="Fshi"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       )
     },
@@ -108,6 +144,16 @@ export default function InstitutionsList() {
           onConfirm={handleToggle}
           onCancel={() => setConfirm(null)}
           loading={toggling}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Fshi Institucionin"
+          message={`A jeni i sigurt që dëshironi të fshini institucionin "${confirmDelete.name}"? Ky veprim është i pakthyeshëm.`}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(null)}
+          loading={deleting}
         />
       )}
     </div>

@@ -4,6 +4,7 @@ import { ArrowLeft, Save, MapPin } from 'lucide-react'
 import { getInstitution, updateInstitution } from '../../api/institutionsApi'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import { useToast } from '../../components/ui/Toast'
+import CategorySelect from '../../components/ui/CategorySelect'
 
 export default function InstitutionEdit() {
   const { id }            = useParams()
@@ -17,6 +18,8 @@ export default function InstitutionEdit() {
   useEffect(() => {
     getInstitution(id)
       .then(res => setForm({
+        tenantId:    res.data.tenantId,
+        categoryId:  res.data.categoryId ?? '',
         name:        res.data.name,
         description: res.data.description ?? '',
         city:        res.data.city,
@@ -69,6 +72,12 @@ export default function InstitutionEdit() {
             {form.city}
           </div>
         </div>
+
+        <CategorySelect
+          value={form.categoryId}
+          onChange={set('categoryId')}
+          required
+        />
 
         <Field label="Emri *" value={form.name} onChange={set('name')} required />
         <Field label="Përshkrimi" value={form.description} onChange={set('description')} />

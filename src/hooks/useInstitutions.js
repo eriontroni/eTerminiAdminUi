@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getInstitutions, createInstitution, updateInstitution, toggleInstitution } from '../api/institutionsApi'
+import { getInstitutions, createInstitution, updateInstitution, toggleInstitution, deleteInstitution } from '../api/institutionsApi'
 
 export function useInstitutions() {
   const [institutions, setInstitutions] = useState([])
@@ -39,5 +39,10 @@ export function useInstitutions() {
     return res.data
   }
 
-  return { institutions, loading, error, fetch, create, update, toggle }
+  const remove = async (id) => {
+    await deleteInstitution(id)
+    setInstitutions(prev => prev.filter(i => i.id !== id))
+  }
+
+  return { institutions, loading, error, fetch, create, update, toggle, remove }
 }
