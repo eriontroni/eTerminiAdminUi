@@ -5,6 +5,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 
 import Login            from '../pages/Login'
 import Dashboard        from '../pages/Dashboard'
+import TenantsList       from '../pages/tenants/TenantsList'
 import InstitutionsList  from '../pages/institutions/InstitutionsList'
 import InstitutionCreate from '../pages/institutions/InstitutionCreate'
 import InstitutionEdit   from '../pages/institutions/InstitutionEdit'
@@ -29,6 +30,7 @@ export default function AppRoutes() {
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard"             element={<Dashboard />} />
+        <Route path="/tenants"               element={<TenantsList />} />
         <Route path="/institutions"          element={<InstitutionsList />} />
         <Route path="/institutions/create"   element={<InstitutionCreate />} />
         <Route path="/institutions/:id/edit" element={<InstitutionEdit />} />

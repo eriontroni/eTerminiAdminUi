@@ -1,9 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Building2, Users, Settings, LogOut, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Settings, LogOut, ShieldCheck, MapPin } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 const navItems = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/tenants',      icon: MapPin,           label: 'Qytetet' },
   { to: '/institutions', icon: Building2,        label: 'Institucionet' },
   { to: '/workers',      icon: Users,            label: 'Punëtorët' },
   { to: '/system',       icon: Settings,         label: 'Sistemi' },

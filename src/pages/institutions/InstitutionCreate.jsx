@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Save } from 'lucide-react'
 import { createInstitution } from '../../api/institutionsApi'
-import TenantSelect from '../../components/ui/TenantSelect'
+import { useTenants } from '../../hooks/useTenants'
 import { useToast } from '../../components/ui/Toast'
 
 const emptyForm = { tenantId: '', name: '', description: '', city: '', address: '', phoneNumber: '', email: '' }
@@ -13,8 +13,15 @@ export default function InstitutionCreate() {
   const [error, setError]     = useState(null)
   const navigate              = useNavigate()
   const { addToast }          = useToast()
+  const { tenants, loading: tenantsLoading } = useTenants()
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
+
+  const handleTenantChange = (e) => {
+    const id     = e.target.value
+    const tenant = tenants.find(t => t.id === id)
+    setForm(f => ({ ...f, tenantId: id, city: tenant?.name ?? '' }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -48,17 +55,31 @@ export default function InstitutionCreate() {
       )}
 
       <form onSubmit={handleSubmit} className="bg-white rounded-3xl ring-1 ring-slate-200 shadow-sm p-6 space-y-5">
-        <TenantSelect value={form.tenantId} onChange={set('tenantId')} required />
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Komuna *</label>
+          <select
+            value={form.tenantId}
+            onChange={handleTenantChange}
+            required
+            disabled={tenantsLoading}
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all disabled:opacity-60"
+          >
+            <option value="">
+              {tenantsLoading ? 'Duke ngarkuar...' : '— Zgjidh komunën —'}
+            </option>
+            {tenants.map(t => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+        </div>
+
         <Field label="Emri *" value={form.name} onChange={set('name')} required placeholder="Klinika Universitare" />
         <Field label="Përshkrimi" value={form.description} onChange={set('description')} placeholder="Përshkrim i shkurtër" />
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Qyteti *" value={form.city} onChange={set('city')} required placeholder="Prishtinë" />
           <Field label="Adresa" value={form.address} onChange={set('address')} placeholder="Rr. Nënë Tereza" />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
           <Field label="Telefoni" value={form.phoneNumber} onChange={set('phoneNumber')} placeholder="+383 44 000 000" />
-          <Field label="Email" value={form.email} onChange={set('email')} type="email" placeholder="info@institucioni.com" />
         </div>
+        <Field label="Email" value={form.email} onChange={set('email')} type="email" placeholder="info@institucioni.com" />
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => navigate('/institutions')} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">

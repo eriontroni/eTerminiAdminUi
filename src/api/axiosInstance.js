@@ -14,7 +14,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const isLoginRequest = err.config?.url?.includes('/admin/auth/login')
+    if (err.response?.status === 401 && !isLoginRequest) {
       localStorage.removeItem('adminAccessToken')
       localStorage.removeItem('adminRefreshToken')
       localStorage.removeItem('adminUser')

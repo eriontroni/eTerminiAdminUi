@@ -19,7 +19,7 @@ export default function Login() {
       await login(form)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.message)
+      setError(err.response?.data?.message ?? err.message)
     } finally {
       setLoading(false)
     }

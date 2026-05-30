@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Save, MapPin } from 'lucide-react'
 import { getInstitution, updateInstitution } from '../../api/institutionsApi'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import { useToast } from '../../components/ui/Toast'
@@ -62,16 +62,21 @@ export default function InstitutionEdit() {
       {error && <div className="mb-5 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm">{error}</div>}
 
       <form onSubmit={handleSubmit} className="bg-white rounded-3xl ring-1 ring-slate-200 shadow-sm p-6 space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Komuna</label>
+          <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-100 bg-slate-50 text-sm text-slate-500">
+            <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+            {form.city}
+          </div>
+        </div>
+
         <Field label="Emri *" value={form.name} onChange={set('name')} required />
         <Field label="Përshkrimi" value={form.description} onChange={set('description')} />
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Qyteti *" value={form.city} onChange={set('city')} required />
           <Field label="Adresa" value={form.address} onChange={set('address')} />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
           <Field label="Telefoni" value={form.phoneNumber} onChange={set('phoneNumber')} />
-          <Field label="Email" value={form.email} onChange={set('email')} type="email" />
         </div>
+        <Field label="Email" value={form.email} onChange={set('email')} type="email" />
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => navigate('/institutions')} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
