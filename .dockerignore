@@ -1,0 +1,19 @@
+.git
+.gitignore
+.github
+.claude
+.vs
+node_modules
+dist
+dist-ssr
+logs
+*.log
+
+# Skedarët .env përjashtohen me qëllim: URL-të e prodhimit vijnë si --build-arg.
+.env
+.env.*
+!.env.example
+
+Dockerfile
+.dockerignore
+README.md

@@ -23,6 +23,11 @@ export const PERMISSIONS = {
     createUpdate: 'categories.create_update',
     delete: 'categories.delete',
   },
+  services: {
+    view: 'services.view',
+    createUpdate: 'services.create_update',
+    delete: 'services.delete',
+  },
   workers: {
     view: 'workers.view',
     createUpdate: 'workers.create_update',
@@ -77,6 +82,15 @@ export const PERMISSION_CATALOG = [
       { code: 'categories.view', label: 'Shiko kategoritë' },
       { code: 'categories.create_update', label: 'Krijo/Përditëso' },
       { code: 'categories.delete', label: 'Fshi' },
+    ],
+  },
+  {
+    key: 'services',
+    label: 'Shërbimet',
+    actions: [
+      { code: 'services.view', label: 'Shiko shërbimet' },
+      { code: 'services.create_update', label: 'Krijo/Përditëso' },
+      { code: 'services.delete', label: 'Fshi' },
     ],
   },
   {

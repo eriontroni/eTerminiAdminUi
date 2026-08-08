@@ -61,11 +61,11 @@ export default function InstitutionsList() {
       key: 'actions', label: '',
       render: r => (
         <div className="flex items-center gap-2 justify-end">
-          {hasPermission(PERMISSIONS.departments.view) && (
+          {hasPermission(PERMISSIONS.services.view) && (
             <button
-              onClick={() => navigate(`/institutions/${r.id}/departments`)}
+              onClick={() => navigate(`/institutions/${r.id}/services`)}
               className="p-2 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-colors"
-              title="Modifiko departamentet"
+              title="Shiko shërbimet"
             >
               <Layers className="w-4 h-4" />
             </button>

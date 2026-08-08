@@ -14,6 +14,10 @@ import InstitutionEdit   from '../pages/institutions/InstitutionEdit'
 import DepartmentsList   from '../pages/departments/DepartmentsList'
 import DepartmentCreate  from '../pages/departments/DepartmentCreate'
 import DepartmentEdit    from '../pages/departments/DepartmentEdit'
+import ServicesList             from '../pages/services/ServicesList'
+import InstitutionServicesList  from '../pages/services/InstitutionServicesList'
+import ServiceCreate     from '../pages/services/ServiceCreate'
+import ServiceEdit       from '../pages/services/ServiceEdit'
 import CategoriesList    from '../pages/categories/CategoriesList'
 import WorkersList       from '../pages/workers/WorkersList'
 import WorkerCreate      from '../pages/workers/WorkerCreate'
@@ -46,8 +50,12 @@ export default function AppRoutes() {
         <Route path="/institutions/create"   element={<ProtectedRoute requiredPermission={PERMISSIONS.institutions.createUpdate}><InstitutionCreate /></ProtectedRoute>} />
         <Route path="/institutions/:id/edit" element={<ProtectedRoute requiredPermission={PERMISSIONS.institutions.createUpdate}><InstitutionEdit /></ProtectedRoute>} />
         <Route path="/institutions/:institutionId/departments"          element={<ProtectedRoute requiredPermission={PERMISSIONS.departments.view}><DepartmentsList /></ProtectedRoute>} />
+        <Route path="/institutions/:institutionId/services"            element={<ProtectedRoute requiredPermission={PERMISSIONS.services.view}><InstitutionServicesList /></ProtectedRoute>} />
         <Route path="/institutions/:institutionId/departments/create"   element={<ProtectedRoute requiredPermission={PERMISSIONS.departments.createUpdate}><DepartmentCreate /></ProtectedRoute>} />
         <Route path="/institutions/:institutionId/departments/:id/edit" element={<ProtectedRoute requiredPermission={PERMISSIONS.departments.createUpdate}><DepartmentEdit /></ProtectedRoute>} />
+        <Route path="/institutions/:institutionId/departments/:departmentId/services"          element={<ProtectedRoute requiredPermission={PERMISSIONS.services.view}><ServicesList /></ProtectedRoute>} />
+        <Route path="/institutions/:institutionId/departments/:departmentId/services/create"   element={<ProtectedRoute requiredPermission={PERMISSIONS.services.createUpdate}><ServiceCreate /></ProtectedRoute>} />
+        <Route path="/institutions/:institutionId/departments/:departmentId/services/:id/edit" element={<ProtectedRoute requiredPermission={PERMISSIONS.services.createUpdate}><ServiceEdit /></ProtectedRoute>} />
         <Route path="/categories"            element={<ProtectedRoute requiredPermission={PERMISSIONS.categories.view}><CategoriesList /></ProtectedRoute>} />
         <Route path="/workers"               element={<ProtectedRoute requiredPermission={PERMISSIONS.workers.view}><WorkersList /></ProtectedRoute>} />
         <Route path="/workers/create"        element={<ProtectedRoute requiredPermission={PERMISSIONS.workers.createUpdate}><WorkerCreate /></ProtectedRoute>} />

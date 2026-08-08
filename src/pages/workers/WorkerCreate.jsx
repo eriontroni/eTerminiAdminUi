@@ -4,12 +4,11 @@ import { ArrowLeft, Save } from 'lucide-react'
 import { createWorker } from '../../api/workersApi'
 import TenantSelect      from '../../components/ui/TenantSelect'
 import InstitutionSelect from '../../components/ui/InstitutionSelect'
-import DepartmentSelect  from '../../components/ui/DepartmentSelect'
 import { useToast } from '../../components/ui/Toast'
 
 const emptyForm = {
   firstName: '', lastName: '', email: '', password: '',
-  phoneNumber: '', title: '', tenantId: '', institutionId: '', departmentId: ''
+  phoneNumber: '', title: '', tenantId: '', institutionId: ''
 }
 
 export default function WorkerCreate() {
@@ -22,8 +21,7 @@ export default function WorkerCreate() {
   const set = (key) => (e) => {
     const value = e.target.value
     setForm(f => {
-      if (key === 'tenantId')      return { ...f, tenantId: value, institutionId: '', departmentId: '' }
-      if (key === 'institutionId') return { ...f, institutionId: value, departmentId: '' }
+      if (key === 'tenantId') return { ...f, tenantId: value, institutionId: '' }
       return { ...f, [key]: value }
     })
   }
@@ -33,8 +31,7 @@ export default function WorkerCreate() {
     setLoading(true)
     setError(null)
     try {
-      const { institutionId, ...payload } = form
-      await createWorker(payload)
+      await createWorker(form)
       addToast('Punëtori u shtua me sukses!')
       navigate('/workers')
     } catch (err) {
@@ -80,12 +77,6 @@ export default function WorkerCreate() {
               tenantId={form.tenantId}
               value={form.institutionId}
               onChange={set('institutionId')}
-              required
-            />
-            <DepartmentSelect
-              institutionId={form.institutionId}
-              value={form.departmentId}
-              onChange={set('departmentId')}
               required
             />
           </div>
