@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   getAdminDepartments,
   createDepartment,
@@ -12,8 +12,12 @@ export function useDepartments(institutionId) {
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState(null)
 
-  const fetch = async () => {
-    if (!institutionId) return
+  const load = useCallback(async () => {
+    if (!institutionId) {
+      setDepartments([])
+      setLoading(false)
+      return
+    }
     setLoading(true)
     setError(null)
     try {
@@ -24,32 +28,52 @@ export function useDepartments(institutionId) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [institutionId])
 
-  useEffect(() => { fetch() }, [institutionId])
+  useEffect(() => {
+    let cancelled = false
+    const run = async () => {
+      if (!institutionId) {
+        if (!cancelled) { setDepartments([]); setLoading(false) }
+        return
+      }
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await getAdminDepartments(institutionId)
+        if (!cancelled) setDepartments(res.data)
+      } catch (err) {
+        if (!cancelled) setError(err.response?.data?.message ?? 'Gabim gjatë ngarkimit.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    run()
+    return () => { cancelled = true }
+  }, [institutionId])
 
-  const create = async (data) => {
+  const create = useCallback(async (data) => {
     const res = await createDepartment({ ...data, institutionId })
     setDepartments(prev => [...prev, res.data])
     return res.data
-  }
+  }, [institutionId])
 
-  const update = async (id, data) => {
+  const update = useCallback(async (id, data) => {
     const res = await updateDepartment(id, data)
     setDepartments(prev => prev.map(d => d.id === id ? res.data : d))
     return res.data
-  }
+  }, [])
 
-  const remove = async (id) => {
+  const remove = useCallback(async (id) => {
     await deleteDepartment(id)
     setDepartments(prev => prev.filter(d => d.id !== id))
-  }
+  }, [])
 
-  const toggle = async (id) => {
+  const toggle = useCallback(async (id) => {
     const res = await toggleDepartmentActive(id)
     setDepartments(prev => prev.map(d => d.id === id ? res.data : d))
     return res.data
-  }
+  }, [])
 
-  return { departments, loading, error, fetch, create, update, remove, toggle }
+  return { departments, loading, error, fetch: load, create, update, remove, toggle }
 }

@@ -1,12 +1,18 @@
-import { useState, useEffect } from 'react'
-import { getInstitutions, createInstitution, updateInstitution, toggleInstitution, deleteInstitution } from '../api/institutionsApi'
+import { useCallback, useEffect, useState } from 'react'
+import {
+  getInstitutions,
+  createInstitution,
+  updateInstitution,
+  toggleInstitution,
+  deleteInstitution,
+} from '../api/institutionsApi'
 
 export function useInstitutions() {
   const [institutions, setInstitutions] = useState([])
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState(null)
 
-  const fetch = async () => {
+  const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -17,32 +23,48 @@ export function useInstitutions() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  useEffect(() => { fetch() }, [])
+  useEffect(() => {
+    let cancelled = false
+    const run = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await getInstitutions()
+        if (!cancelled) setInstitutions(res.data)
+      } catch (err) {
+        if (!cancelled) setError(err.response?.data?.message ?? 'Gabim gjatë ngarkimit.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    run()
+    return () => { cancelled = true }
+  }, [])
 
-  const create = async (data) => {
+  const create = useCallback(async (data) => {
     const res = await createInstitution(data)
     setInstitutions(prev => [...prev, res.data])
     return res.data
-  }
+  }, [])
 
-  const update = async (id, data) => {
+  const update = useCallback(async (id, data) => {
     const res = await updateInstitution(id, data)
     setInstitutions(prev => prev.map(i => i.id === id ? res.data : i))
     return res.data
-  }
+  }, [])
 
-  const toggle = async (id) => {
+  const toggle = useCallback(async (id) => {
     const res = await toggleInstitution(id)
     setInstitutions(prev => prev.map(i => i.id === id ? res.data : i))
     return res.data
-  }
+  }, [])
 
-  const remove = async (id) => {
+  const remove = useCallback(async (id) => {
     await deleteInstitution(id)
     setInstitutions(prev => prev.filter(i => i.id !== id))
-  }
+  }, [])
 
-  return { institutions, loading, error, fetch, create, update, toggle, remove }
+  return { institutions, loading, error, fetch: load, create, update, toggle, remove }
 }

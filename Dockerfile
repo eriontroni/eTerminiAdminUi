@@ -5,7 +5,7 @@
 #
 # KUJDES: Vite i "pjek" variablat VITE_* në build-time, jo në runtime.
 #
-#   docker build --build-arg VITE_API_URL=https://etermini-adminapi.troni.dev/api -t etermini-admin-ui .
+#   docker build --build-arg VITE_API_URL=https://etermini-api.troni.dev/api -t etermini-admin-ui .
 
 # ---------- build ----------
 FROM node:22-alpine AS build

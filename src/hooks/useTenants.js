@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getTenants, createTenant, deleteTenant } from '../api/tenantsApi'
 
 export function useTenants() {
@@ -6,29 +6,49 @@ export function useTenants() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
     getTenants()
-      .then(r => setTenants(r.data.filter(t => t.isActive)))
+      .then(r => { if (!cancelled) setTenants(r.data.filter(t => t.isActive)) })
       .catch(() => {})
-      .finally(() => setLoading(false))
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [])
 
   return { tenants, loading }
 }
 
 export function useTenantsAdmin() {
-  const [tenants, setTenants]   = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState(null)
+  const [tenants, setTenants] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError]     = useState(null)
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     setLoading(true)
-    getTenants()
-      .then(r => { setTenants(r.data); setError(null) })
-      .catch(e => setError(e.response?.data?.message ?? e.message))
-      .finally(() => setLoading(false))
+    try {
+      const r = await getTenants()
+      setTenants(r.data)
+      setError(null)
+    } catch (e) {
+      setError(e.response?.data?.message ?? e.message)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const r = await getTenants()
+        if (!cancelled) { setTenants(r.data); setError(null) }
+      } catch (e) {
+        if (!cancelled) setError(e.response?.data?.message ?? e.message)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   const create = useCallback(async (dto) => {
     const r = await createTenant(dto)
@@ -41,5 +61,5 @@ export function useTenantsAdmin() {
     setTenants(prev => prev.filter(t => t.id !== id))
   }, [])
 
-  return { tenants, loading, error, create, remove }
+  return { tenants, loading, error, reload: load, create, remove }
 }

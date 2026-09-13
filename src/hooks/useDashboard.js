@@ -8,21 +8,25 @@ export function useDashboard() {
   const [error, setError]                   = useState(null)
 
   useEffect(() => {
+    let cancelled = false
     const fetch = async () => {
       try {
         const [statsRes, appsRes] = await Promise.all([
           getDashboardStats(),
           getActiveAppointments(),
         ])
-        setStats(statsRes.data)
-        setActiveApps(appsRes.data)
+        if (!cancelled) {
+          setStats(statsRes.data)
+          setActiveApps(appsRes.data)
+        }
       } catch (err) {
-        setError(err.response?.data?.message ?? 'Gabim gjatë ngarkimit.')
+        if (!cancelled) setError(err.response?.data?.message ?? 'Gabim gjatë ngarkimit.')
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
     fetch()
+    return () => { cancelled = true }
   }, [])
 
   return { stats, activeAppointments, loading, error }

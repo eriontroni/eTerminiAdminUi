@@ -54,7 +54,7 @@ export default function AdminCreate() {
           <Field label="Mbiemri *" value={form.lastName} onChange={set('lastName')} required placeholder="Fisteku" />
         </div>
 
-        <Field label="Email *" value={form.email} onChange={set('email')} type="email" required placeholder="admin@etermini.com" />
+        <Field label="Email *" value={form.email} onChange={set('email')} type="email" required placeholder="admin@example.com" />
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Fjalëkalimi *</label>
